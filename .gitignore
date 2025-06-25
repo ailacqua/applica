@@ -1,0 +1,36 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# dotenv environment variables file
+backend/.env
+frontend/.env
+
+# Build output (if any)
+dist/
+build/
+
+# Chrome extension temp or build files (if you use any bundler)
+*.crx
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor config files
+.vscode/
+.idea/
+
+# PostgreSQL dump or backup files (optional)
+*.sql
+*.dump
+
+# Optional: ignore coverage reports (if you add tests)
+coverage/
