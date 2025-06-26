@@ -22,7 +22,7 @@ function postToSheet(data) {
   .catch(err => console.error('Error posting to sheet:', err));
 }
 
-document.getElementById('getHtmlBtn').addEventListener('click', () => {
+function extractJobHtml() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     extractedUrl = tabs[0]?.url || '';
 
@@ -44,6 +44,13 @@ document.getElementById('getHtmlBtn').addEventListener('click', () => {
       }
     );
   });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  extractJobHtml();  // Run immediately on popup load
+
+  // Optional: if you still want the button
+  document.getElementById('getHtmlBtn').addEventListener('click', extractJobHtml);
 });
 
 document.getElementById('sendBtn').addEventListener('click', () => {
