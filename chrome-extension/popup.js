@@ -1,28 +1,49 @@
 let extractedContent = null;
 let extractedUrl = null;
-let currentDate = new Intl.DateTimeFormat('en-US', {
+
+const dateApplied = new Intl.DateTimeFormat('en-US', {
   timeZone: 'America/New_York',
   year: 'numeric',
   month: '2-digit',
   day: '2-digit'
 }).format(new Date());
 
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbz9ldlr4cWbh1gpC3Y4nFP95d_cqSPB1Xg0TmHnqeSUIM21cx-KqoyzDHfiN1xYRQ3L/exec';
+const parseBtn = document.getElementById('parseBtn');
+const saveBtn = document.getElementById('saveBtn');
+const output = document.getElementById('output');
 
-function postToSheet(data) {
-  fetch('http://localhost:3000/send-to-sheet', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(json => console.log('Server response:', json))
-  .catch(err => console.error('Error posting to sheet:', err));
+// Disable Save initially
+saveBtn.disabled = true;
+
+// Helper to set input values safely
+function setInputValue(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value || '';
 }
 
-function extractJobHtml() {
+// Helper to get input values
+function getInputValue(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+// Populate the form inputs with parsed data
+function populateForm(data) {
+  setInputValue('company', data.company);
+  setInputValue('position', data.position);
+  setInputValue('location', data.location);
+  setInputValue('url', extractedUrl);
+  setInputValue('requisition_id', data.requisition_id);
+  setInputValue('date_applied', dateApplied);
+  setInputValue('date_posted', data.date_posted);
+  saveBtn.disabled = false;
+}
+
+// When Parse Posting clicked
+parseBtn.addEventListener('click', () => {
+  output.textContent = '';
+  saveBtn.disabled = true;
+
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     extractedUrl = tabs[0]?.url || '';
 
@@ -34,47 +55,56 @@ function extractJobHtml() {
       (results) => {
         if (chrome.runtime.lastError || !results || !results[0].result) {
           extractedContent = null;
-          document.getElementById('output').textContent = "Failed to extract job details from this page.";
-          document.getElementById('sendBtn').disabled = true;
+          output.textContent = "Failed to extract job details from this page.";
           return;
         }
         extractedContent = results[0].result;
-        document.getElementById('output').textContent = extractedContent;
-        document.getElementById('sendBtn').disabled = false;
+
+        // Send to backend to parse using GROQ API
+        chrome.runtime.sendMessage({ action: "processJobPost", content: extractedContent }, (response) => {
+          if (response.error) {
+            output.textContent = "Error: " + response.error;
+            return;
+          }
+          try {
+            const json = JSON.parse(response.result);
+            populateForm(json);
+          } catch {
+            output.textContent = "Failed to parse response from server.";
+          }
+        });
       }
     );
   });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  extractJobHtml();  // Run immediately on popup load
-
-  // Optional: if you still want the button
-  document.getElementById('getHtmlBtn').addEventListener('click', extractJobHtml);
 });
 
-document.getElementById('sendBtn').addEventListener('click', () => {
-  if (!extractedContent) {
-    document.getElementById('output').textContent = "No job content to parse. Please click 'Get Job HTML' first.";
-    return;
-  }
+// When Save clicked, gather form data and send to backend or Google Sheet
+saveBtn.addEventListener('click', () => {
+  output.textContent = '';
 
-  chrome.runtime.sendMessage({ action: "processJobPost", content: extractedContent }, (response) => {
-    if (response.error) {
-      document.getElementById('output').textContent = "Error: " + response.error;
-    } else {
-      try {
-        const json = JSON.parse(response.result);
-        json.url = extractedUrl;
-        json.date_applied = currentDate;
+  const dataToSave = {
+    company: getInputValue('company'),
+    position: getInputValue('position'),
+    location: getInputValue('location'),
+    url: getInputValue('url'),
+    requisition_id: getInputValue('requisition_id'),
+    date_applied: getInputValue('date_applied'),
+    date_posted: getInputValue('date_posted'),
+  };
 
-        document.getElementById('output').textContent = JSON.stringify(json, null, 2);
-
-        postToSheet(json);
-
-      } catch {
-        document.getElementById('output').textContent = response.result;
-      }
-    }
+  // You can choose whether to send to your local backend or directly to Google Sheets
+  fetch('http://localhost:3000/send-to-sheet', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dataToSave)
+  })
+  .then(res => res.json())
+  .then(json => {
+    output.style.color = 'green';
+    output.textContent = 'Saved successfully!';
+  })
+  .catch(err => {
+    output.style.color = 'red';
+    output.textContent = 'Error saving data: ' + err.message;
   });
 });

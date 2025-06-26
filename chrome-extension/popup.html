@@ -1,18 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Job Tracker</title>
+  <meta charset="UTF-8" />
+  <title>Job Parser</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 10px; }
-    #output { white-space: pre-wrap; background: #f0f0f0; padding: 10px; height: 300px; overflow: auto; border: 1px solid #ccc; }
-    button { margin-top: 10px; margin-right: 10px; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      width: 300px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+    td {
+      padding: 5px;
+      vertical-align: middle;
+    }
+    td.label {
+      width: 35%;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 5px;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body>
-  <h2>Job Application Tracker</h2>
-  <button id="getHtmlBtn">Get Job HTML</button>
-  <button id="sendBtn" disabled>Parse Job Info</button>
-  <div id="output">Click "Get Job HTML" to extract job details from the current page.</div>
+  <button id="parseBtn">Parse Posting</button>
+
+  <table>
+    <tr><td class="label">Company</td><td><input id="company" type="text" /></td></tr>
+    <tr><td class="label">Position</td><td><input id="position" type="text" /></td></tr>
+    <tr><td class="label">Location</td><td><input id="location" type="text" /></td></tr>
+    <tr><td class="label">URL</td><td><input id="url" type="text" readonly /></td></tr>
+    <tr><td class="label">REQ ID</td><td><input id="requisition_id" type="text" /></td></tr>
+    <tr><td class="label">Date Applied</td><td><input id="date_applied" type="text" readonly /></td></tr>
+    <tr><td class="label">Date Posted</td><td><input id="date_posted" type="text" /></td></tr>
+  </table>
+
+  <button id="saveBtn" disabled>Save</button>
+
+  <div id="output" style="white-space: pre-wrap; font-size: 12px; color: red;"></div>
 
   <script src="popup.js"></script>
 </body>
