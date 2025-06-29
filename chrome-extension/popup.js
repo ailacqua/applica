@@ -60,7 +60,7 @@ parseBtn.addEventListener('click', () => {
         }
         extractedContent = results[0].result;
 
-        // Send to backend to parse using GROQ API
+        // Send to backend to parse using Gemini API
         chrome.runtime.sendMessage({ action: "processJobPost", content: extractedContent }, (response) => {
           if (response.error) {
             output.textContent = "Error: " + response.error;

@@ -20,7 +20,7 @@
   }
 
   if (!matchedSelectors) {
-    return null;  // no match found
+    matchedSelectors = ['body']; // use body
   }
 
   let combinedHTML = '';

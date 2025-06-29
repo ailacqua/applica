@@ -14,42 +14,59 @@ app.use(express.json());
 // New /extract endpoint for the extension
 app.post('/extract', async (req, res) => {
   const { prompt } = req.body;
-  console.log(prompt);
+  console.log('GOT THE PROMPT!');
 
   if (!prompt) {
     return res.status(400).json({ error: 'Missing prompt' });
   }
 
   try {
-    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const llmRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+        'x-goog-api-key': `${process.env.GEMINI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama3-70b-8192',
-        messages: [
+        'contents': [
           {
-            role: 'user',
-            content: prompt
+            'parts': [
+              {
+                'text': prompt
+              }
+            ]
           }
-        ]
+        ],
+        'generationConfig': {
+          'responseMimeType': 'application/json',
+          'responseSchema': {
+            'type': 'OBJECT',
+            'properties': {
+              'company': { 'type': 'STRING'},
+              'position' : { 'type': 'STRING'},
+              'location' : { 'type': 'STRING'},
+              'date_posted' : { 'type': 'STRING'},
+              'requisition_id' : { 'type': 'STRING'}
+            },
+            "propertyOrdering": ["company", "position", "location", "date_posted", "requisition_id"]
+          }
+        }
       })
     });
 
-    if (!groqRes.ok) {
-      const errorText = await groqRes.text();
-      return res.status(500).json({ error: `Groq API error: ${errorText}` });
+    if (!llmRes.ok) {
+      const errorText = await llmRes.text();
+      return res.status(500).json({ error: `LLM API error: ${errorText}` });
     }
 
-    const json = await groqRes.json();
-    const result = json.choices?.[0]?.message?.content;
+    const data = await llmRes.json();
+    console.log(data);
+    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     console.log(result);
 
     res.json({ result });
   } catch (err) {
-    console.error('Groq error:', err);
+    console.error('LLM parsing error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -57,7 +74,7 @@ app.post('/extract', async (req, res) => {
 app.post('/send-to-sheet', async (req, res) => {
   const sheetWebhookUrl = process.env.SHEET_WEBHOOK_URL;
   if (!sheetWebhookUrl) {
-    return res.status(500).json({ error: "Missing SHEET_WEBHOOK_URL in environment" });
+    return res.status(500).json({ error: 'Missing SHEET_WEBHOOK_URL in environment' });
   }
 
   try {

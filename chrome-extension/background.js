@@ -8,16 +8,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     const dateString = formatter.format(new Date());
 
-    const prompt = `Extract the following job info from the HTML snippet below: Job Title, Company Name, Location in City State format, Requisition ID, Date Posted; Return ONLY a JSON object with these fields:
-    {
-    company: name of the company (string)
-    position: name of the position being applied to (string)
-    location: location or locations of job in form City, State (string)
-    date_posted: date the position was posted in YYYY-MM-DD format. For reference, the current date is ${dateString}.
-    requisition_id: requisition id or id associated with the job posting (string)
-    }
+    const prompt = `Extract the following job info from the HTML snippet below: "position", "company", "location" in city, state abbreviation format, 
+    "requisition_id", and "date_posted" in YYYY-MM-DD format. If needed, for reference, the current date is ${dateString}. Give response as a JSON.
 
-    If the data is not available, have an empty string for that field. Do not include any explanation or markdown. Just return the JSON object.
+    If the data is not available, have an empty string for that field. Ensure that all proper nouns are correctly capitalized. 
     
     HTML snippet:
     ${message.content}`;
@@ -36,7 +30,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ result: data.result });
       })
       .catch(err => {
-        console.error("Groq fetch failed:", err);
+        console.error("LLM fetch failed:", err);
         sendResponse({ error: err.message });
       });
 
