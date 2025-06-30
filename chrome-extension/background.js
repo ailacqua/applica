@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const dateString = formatter.format(new Date());
 
     const prompt = `Extract the following job info from the HTML snippet below: "position", "company", "location" in city, state abbreviation format, 
-    "requisition_id", and "date_posted" in YYYY-MM-DD format. If needed, for reference, the current date is ${dateString}. Give response as a JSON.
+    "requisition_id", and "date_posted" in DD/MM/YYYY format. If needed, for reference, the current date is ${dateString}. Give response as a JSON.
 
     If the data is not available, have an empty string for that field. Ensure that all proper nouns are correctly capitalized. 
     
