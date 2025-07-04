@@ -21,19 +21,17 @@ const dateString = formatter.format(new Date());
 
 // New /extract endpoint for the extension
 app.post('/extract', async (req, res) => {
-  const { prompt } = `Extract the following job info from the HTML snippet below: "position", "company", "location" in city, state abbreviation format, 
+  const prompt = `Extract the following job info from the HTML snippet below: "position", "company", "location" in city, state abbreviation format, 
     "requisition_id", and "date_posted" in DD/MM/YYYY format. If needed, for reference, the current date is ${dateString}. Give response as a JSON.
 
     If the data is not available, have an empty string for that field. Ensure that all proper nouns are correctly capitalized. 
     
     HTML snippet:
-    ${req.body}`;
+    ${req.body.pageContents}`;
   
   console.log('GOT THE PROMPT!');
 
-  if (!prompt) {
-    return res.status(400).json({ error: 'Missing prompt' });
-  }
+  console.log(req.body.pageContents)
 
   try {
     const llmRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', {

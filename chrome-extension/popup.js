@@ -90,6 +90,7 @@ saveBtn.addEventListener('click', () => {
     requisition_id: getInputValue('requisition_id'),
     date_applied: getInputValue('date_applied'),
     date_posted: getInputValue('date_posted'),
+    status: getInputValue('status')
   };
 
   // You can choose whether to send to your local backend or directly to Google Sheets

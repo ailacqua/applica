@@ -2,6 +2,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "processJobPost") {
 
     const pageContents = `${message.content}`;
+    console.log(pageContents);
 
     fetch("http://localhost:3000/extract", {
       method: "POST",
