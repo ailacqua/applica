@@ -29,9 +29,7 @@ app.post('/extract', async (req, res) => {
     HTML snippet:
     ${req.body.pageContents}`;
   
-  console.log('GOT THE PROMPT!');
-
-  console.log(req.body.pageContents)
+  console.log('Sending to Gemini!');
 
   try {
     const llmRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', {
