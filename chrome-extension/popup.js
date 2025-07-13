@@ -12,22 +12,18 @@ const parseBtn = document.getElementById('parseBtn');
 const saveBtn = document.getElementById('saveBtn');
 const output = document.getElementById('output');
 
-// Disable Save initially
 saveBtn.disabled = true;
 
-// Helper to set input values safely
 function setInputValue(id, value) {
   const el = document.getElementById(id);
   if (el) el.value = value || '';
 }
 
-// Helper to get input values
 function getInputValue(id) {
   const el = document.getElementById(id);
   return el ? el.value : '';
 }
 
-// Populate the form inputs with parsed data
 function populateForm(data) {
   setInputValue('company', data.company);
   setInputValue('position', data.position);
@@ -39,7 +35,6 @@ function populateForm(data) {
   saveBtn.disabled = false;
 }
 
-// When Parse Posting clicked
 parseBtn.addEventListener('click', () => {
   output.textContent = '';
   saveBtn.disabled = true;
@@ -60,7 +55,6 @@ parseBtn.addEventListener('click', () => {
         }
         extractedContent = results[0].result;
 
-        // Send to backend to parse using Gemini API
         chrome.runtime.sendMessage({ action: "processJobPost", content: extractedContent }, (response) => {
           if (response.error) {
             output.textContent = "Error: " + response.error;

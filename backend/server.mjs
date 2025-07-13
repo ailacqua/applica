@@ -19,7 +19,6 @@ const dateString = formatter.format(new Date());
 // Existing jobs API
 // app.use('/jobs', jobsRouter);
 
-// New /extract endpoint for the extension
 app.post('/extract', async (req, res) => {
   const prompt = `Extract the following job info from the HTML snippet below: "position", "company", "location" in city, state abbreviation format, 
     "requisition_id", and "date_posted" in DD/MM/YYYY format. If needed, for reference, the current date is ${dateString}. Give response as a JSON.
