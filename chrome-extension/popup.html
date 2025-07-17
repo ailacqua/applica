@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Job Parser</title>
@@ -9,25 +10,30 @@
       padding: 10px;
       width: 300px;
     }
+
     button {
       width: 100%;
       padding: 10px;
       margin-bottom: 10px;
       font-size: 16px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 10px;
     }
+
     td {
       padding: 5px;
       vertical-align: middle;
     }
+
     td.label {
       width: 35%;
       font-weight: bold;
     }
+
     input {
       width: 100%;
       padding: 5px;
@@ -35,18 +41,48 @@
     }
   </style>
 </head>
+
 <body>
   <button id="parseBtn">Parse Posting</button>
 
   <table>
-    <tr><td class="label">Company</td><td><input id="company" type="text" /></td></tr>
-    <tr><td class="label">Position</td><td><input id="position" type="text" /></td></tr>
-    <tr><td class="label">Location</td><td><input id="location" type="text" /></td></tr>
-    <tr><td class="label">URL</td><td><input id="url" type="text" readonly /></td></tr>
-    <tr><td class="label">REQ ID</td><td><input id="requisition_id" type="text" /></td></tr>
-    <tr><td class="label">Date Applied</td><td><input id="date_applied" type="text" readonly /></td></tr>
-    <tr><td class="label">Date Posted</td><td><input id="date_posted" type="text" /></td></tr>
-    <tr><td class="label">Status</td><td><input id="status" type="text" value="APPLIED" /></td></tr>
+    <tr>
+      <td class="label">Company</td>
+      <td><input id="company" type="text" /></td>
+    </tr>
+    <tr>
+      <td class="label">Position</td>
+      <td><input id="position" type="text" /></td>
+    </tr>
+    <tr>
+      <td class="label">Location</td>
+      <td><input id="location" type="text" /></td>
+    </tr>
+    <tr>
+      <td class="label">URL</td>
+      <td><input id="url" type="text" readonly /></td>
+    </tr>
+    <tr>
+      <td class="label">REQ ID</td>
+      <td><input id="requisition_id" type="text" /></td>
+    </tr>
+    <tr>
+      <td class="label">Date Applied</td>
+      <td><input id="date_applied" type="text" readonly /></td>
+    </tr>
+    <tr>
+      <td class="label">Date Posted</td>
+      <td><input id="date_posted" type="text" /></td>
+    </tr>
+    <tr>
+      <td class="label">Status</td>
+      <td>
+        <select id="status">
+          <option value="TODO">TODO</option>
+          <option value="APPLIED" selected>APPLIED</option>
+        </select>
+      </td>
+    </tr>
   </table>
 
   <button id="saveBtn" disabled>Save</button>
@@ -55,4 +91,5 @@
 
   <script src="popup.js"></script>
 </body>
+
 </html>
