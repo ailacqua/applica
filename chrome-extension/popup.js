@@ -1,18 +1,22 @@
 let extractedContent = null;
 let extractedUrl = null;
 
-const dateApplied = new Intl.DateTimeFormat('en-US', {
-  timeZone: 'America/New_York',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit'
-}).format(new Date());
-
 const parseBtn = document.getElementById('parseBtn');
 const saveBtn = document.getElementById('saveBtn');
 const output = document.getElementById('output');
+const statusSelect = document.getElementById('status');
+const dateAppliedInput = document.getElementById('date_applied');
 
 saveBtn.disabled = true;
+
+function formatTodayDate() {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date());
+}
 
 function setInputValue(id, value) {
   const el = document.getElementById(id);
@@ -24,14 +28,33 @@ function getInputValue(id) {
   return el ? el.value : '';
 }
 
+function updateDateAppliedField() {
+  if (statusSelect.value === 'APPLIED') {
+    dateAppliedInput.value = formatTodayDate();
+    dateAppliedInput.readOnly = true;
+  } else if (statusSelect.value === 'TODO') {
+    dateAppliedInput.value = '';
+    dateAppliedInput.readOnly = false;
+  }
+}
+
 function populateForm(data) {
   setInputValue('company', data.company);
   setInputValue('position', data.position);
   setInputValue('location', data.location);
   setInputValue('url', extractedUrl);
   setInputValue('requisition_id', data.requisition_id);
-  setInputValue('date_applied', dateApplied);
   setInputValue('date_posted', data.date_posted);
+
+  // Handle date_applied depending on status
+  if (statusSelect.value === 'APPLIED') {
+    dateAppliedInput.value = formatTodayDate();
+    dateAppliedInput.readOnly = true;
+  } else {
+    dateAppliedInput.value = '';
+    dateAppliedInput.readOnly = false;
+  }
+
   saveBtn.disabled = false;
 }
 
@@ -72,7 +95,6 @@ parseBtn.addEventListener('click', () => {
   });
 });
 
-// When Save clicked, gather form data and send to backend or Google Sheet
 saveBtn.addEventListener('click', () => {
   output.textContent = '';
 
@@ -87,19 +109,24 @@ saveBtn.addEventListener('click', () => {
     status: getInputValue('status')
   };
 
-  // You can choose whether to send to your local backend or directly to Google Sheets
   fetch('http://localhost:3000/send-to-sheet', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dataToSave)
   })
-  .then(res => res.json())
-  .then(json => {
-    output.style.color = 'green';
-    output.textContent = 'Saved successfully!';
-  })
-  .catch(err => {
-    output.style.color = 'red';
-    output.textContent = 'Error saving data: ' + err.message;
-  });
+    .then(res => res.json())
+    .then(json => {
+      output.style.color = 'green';
+      output.textContent = 'Saved successfully!';
+    })
+    .catch(err => {
+      output.style.color = 'red';
+      output.textContent = 'Error saving data: ' + err.message;
+    });
 });
+
+// Hook up Status dropdown behavior
+statusSelect.addEventListener('change', updateDateAppliedField);
+
+// Initialize on page load
+updateDateAppliedField();
