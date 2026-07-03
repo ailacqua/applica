@@ -32,17 +32,16 @@
       color: #fafafa;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       margin: 0;
     }
 
-    .header-title span.dot {
-      width: 8px;
-      height: 8px;
-      background-color: #6366f1;
-      border-radius: 50%;
+    .header-logo {
+      width: 16px;
+      height: 16px;
+      filter: invert(47%) sepia(87%) saturate(1352%) hue-rotate(213deg) brightness(98%) contrast(93%);
       display: inline-block;
-      box-shadow: 0 0 8px #6366f1;
+      vertical-align: middle;
     }
 
     .header-subtitle {
@@ -162,28 +161,71 @@
 
     /* Output banner */
     #output {
-      margin-top: 12px;
-      padding: 8px 12px;
+      margin-top: 16px;
+      padding: 10px 12px;
       border-radius: 6px;
       font-size: 12px;
       font-weight: 500;
-      white-space: pre-wrap;
       display: none; /* Hidden by default */
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
       animation: fadeIn 0.2s ease-in-out;
+      box-sizing: border-box;
     }
 
     #output.success {
-      background-color: rgba(34, 197, 94, 0.1);
+      background-color: rgba(34, 197, 94, 0.08);
       border: 1px solid rgba(34, 197, 94, 0.2);
       color: #4ade80;
-      display: block;
+      display: flex;
     }
 
     #output.error {
-      background-color: rgba(239, 68, 68, 0.1);
+      background-color: rgba(239, 68, 68, 0.08);
       border: 1px solid rgba(239, 68, 68, 0.2);
       color: #f87171;
-      display: block;
+      display: flex;
+    }
+
+    .alert-body {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .alert-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .alert-message {
+      word-break: break-word;
+    }
+
+    .alert-close {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      opacity: 0.5;
+      transition: opacity 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .alert-close:hover {
+      opacity: 0.9;
     }
 
     @keyframes fadeIn {
@@ -195,7 +237,7 @@
 
 <body>
   <div class="header">
-    <h1 class="header-title"><span class="dot"></span>Applica</h1>
+    <h1 class="header-title"><img src="icons/icon16.png" class="header-logo" alt="Logo" />Applica</h1>
     <span class="header-subtitle">v1.1</span>
   </div>
 
