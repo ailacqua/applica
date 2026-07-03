@@ -2,8 +2,11 @@ import express from 'express';
 import dotenv from 'dotenv';
 // import jobsRouter from './routes/jobs.js';
 import fetch from 'node-fetch'; // if using CommonJS use dynamic import instead
+import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const app = express();
 app.use(express.json({ limit: '5mb' }));
@@ -20,58 +23,43 @@ const dateString = formatter.format(new Date());
 // app.use('/jobs', jobsRouter);
 
 app.post('/extract', async (req, res) => {
-  const prompt = `Extract the following job info from the HTML snippet below: "position", "company", "location" in city, state abbreviation format, 
-    "requisition_id", and "date_posted" in MM/DD/YYYY format. If needed, for reference, the current date is ${dateString}. Give response as a JSON.
+  const prompt = `You are a precise job posting parser. Extract the following fields from the provided HTML snippet of a job posting:
+- "position": The job title (e.g., "Software Engineer II").
+- "company": The company name. Ensure all proper nouns are correctly capitalized.
+- "location": The location in "City, State Abbreviation" format (e.g., "Seattle, WA"). If remote, use "Remote". For international, use "City, Country".
+- "requisition_id": The job requisition number or ID, if present. Extract only the ID itself (e.g., "JR12345").
+- "date_posted": The date the job was posted, converted to MM/DD/YYYY format. If a relative date is given (e.g., "3 days ago" or "Yesterday"), calculate the absolute date based on the current date: ${dateString}.
 
-    If the data is not available, have an empty string for that field. Ensure that all proper nouns are correctly capitalized. 
-    
-    HTML snippet:
-    ${req.body.pageContents}`;
+Rules:
+1. If any field is not found or cannot be determined from the content, use an empty string "" for that field.
+2. Do not infer or guess information not present in the HTML snippet.
+
+HTML snippet:
+${req.body.pageContents}`;
   
   console.log('Sending to Gemini!');
 
   try {
-    const llmRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': `${process.env.GEMINI_API_KEY}`
-      },
-      body: JSON.stringify({
-        'contents': [
-          {
-            'parts': [
-              {
-                'text': prompt
-              }
-            ]
-          }
-        ],
-        'generationConfig': {
-          'responseMimeType': 'application/json',
-          'responseSchema': {
-            'type': 'OBJECT',
-            'properties': {
-              'company': { 'type': 'STRING'},
-              'position' : { 'type': 'STRING'},
-              'location' : { 'type': 'STRING'},
-              'date_posted' : { 'type': 'STRING'},
-              'requisition_id' : { 'type': 'STRING'}
-            },
-            "propertyOrdering": ["company", "position", "location", "date_posted", "requisition_id"]
-          }
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'object',
+          properties: {
+            company: { type: 'string' },
+            position: { type: 'string' },
+            location: { type: 'string' },
+            date_posted: { type: 'string' },
+            requisition_id: { type: 'string' }
+          },
+          required: ['company', 'position', 'location', 'date_posted', 'requisition_id']
         }
-      })
+      }
     });
 
-    if (!llmRes.ok) {
-      const errorText = await llmRes.text();
-      return res.status(500).json({ error: `LLM API error: ${errorText}` });
-    }
-
-    const data = await llmRes.json();
-    console.log(data);
-    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const result = response.text;
     console.log(result);
 
     res.json({ result });

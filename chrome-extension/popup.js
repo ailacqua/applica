@@ -32,7 +32,7 @@ function updateDateAppliedField() {
   if (statusSelect.value === 'APPLIED') {
     dateAppliedInput.value = formatTodayDate();
     dateAppliedInput.readOnly = true;
-  } else if (statusSelect.value === 'TODO') {
+  } else if (statusSelect.value === 'TO APPLY') {
     dateAppliedInput.value = '';
     dateAppliedInput.readOnly = false;
   }
