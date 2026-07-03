@@ -60,6 +60,7 @@ function populateForm(data) {
 
 parseBtn.addEventListener('click', () => {
   output.textContent = '';
+  output.className = '';
   saveBtn.disabled = true;
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -74,6 +75,7 @@ parseBtn.addEventListener('click', () => {
         if (chrome.runtime.lastError || !results || !results[0].result) {
           extractedContent = null;
           output.textContent = "Failed to extract job details from this page.";
+          output.className = 'error';
           return;
         }
         extractedContent = results[0].result;
@@ -81,6 +83,7 @@ parseBtn.addEventListener('click', () => {
         chrome.runtime.sendMessage({ action: "processJobPost", content: extractedContent }, (response) => {
           if (response.error) {
             output.textContent = "Error: " + response.error;
+            output.className = 'error';
             return;
           }
           try {
@@ -88,6 +91,7 @@ parseBtn.addEventListener('click', () => {
             populateForm(json);
           } catch {
             output.textContent = "Failed to parse response from server.";
+            output.className = 'error';
           }
         });
       }
@@ -97,6 +101,7 @@ parseBtn.addEventListener('click', () => {
 
 saveBtn.addEventListener('click', () => {
   output.textContent = '';
+  output.className = '';
 
   const dataToSave = {
     company: getInputValue('company'),
@@ -116,12 +121,12 @@ saveBtn.addEventListener('click', () => {
   })
     .then(res => res.json())
     .then(json => {
-      output.style.color = 'green';
       output.textContent = 'Saved successfully!';
+      output.className = 'success';
     })
     .catch(err => {
-      output.style.color = 'red';
       output.textContent = 'Error saving data: ' + err.message;
+      output.className = 'error';
     });
 });
 

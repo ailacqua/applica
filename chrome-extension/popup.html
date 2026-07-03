@@ -5,89 +5,252 @@
   <meta charset="UTF-8" />
   <title>Job Parser</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     body {
-      font-family: Arial, sans-serif;
-      padding: 10px;
-      width: 300px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 10px;
-    }
-
-    td {
-      padding: 5px;
-      vertical-align: middle;
-    }
-
-    td.label {
-      width: 35%;
-      font-weight: bold;
-    }
-
-    input {
-      width: 100%;
-      padding: 5px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #09090b;
+      color: #fafafa;
+      margin: 0;
+      padding: 16px;
+      width: 320px;
       box-sizing: border-box;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .header-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fafafa;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+    }
+
+    .header-title span.dot {
+      width: 8px;
+      height: 8px;
+      background-color: #6366f1;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 8px #6366f1;
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      color: #a1a1aa;
+    }
+
+    /* Form Layout */
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-group label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Inputs */
+    input, select {
+      background-color: #18181b;
+      color: #fafafa;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      box-sizing: border-box;
+      width: 100%;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #a1a1aa;
+      box-shadow: 0 0 0 2px rgba(228, 228, 231, 0.1);
+    }
+
+    input[readonly] {
+      background-color: #121214;
+      border-color: #202023;
+      color: #71717a;
+      cursor: not-allowed;
+    }
+
+    /* Custom Buttons */
+    .btn {
+      width: 100%;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    #parseBtn {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #ffffff;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+    #parseBtn:hover {
+      background: linear-gradient(135deg, #4f46e5, #4338ca);
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+    }
+
+    #parseBtn:active {
+      transform: scale(0.98);
+    }
+
+    #saveBtn {
+      background-color: #fafafa;
+      color: #18181b;
+      margin-top: 4px;
+      border: 1px solid #fafafa;
+    }
+
+    #saveBtn:hover:not(:disabled) {
+      background-color: #f4f4f5;
+      border-color: #f4f4f5;
+    }
+
+    #saveBtn:disabled {
+      background-color: #27272a;
+      border-color: #27272a;
+      color: #71717a;
+      cursor: not-allowed;
+    }
+
+    /* Output banner */
+    #output {
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: pre-wrap;
+      display: none; /* Hidden by default */
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    #output.success {
+      background-color: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      display: block;
+    }
+
+    #output.error {
+      background-color: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(2px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 
 <body>
-  <button id="parseBtn">Parse Posting</button>
+  <div class="header">
+    <h1 class="header-title"><span class="dot"></span>Applica</h1>
+    <span class="header-subtitle">v1.1</span>
+  </div>
 
-  <table>
-    <tr>
-      <td class="label">Company</td>
-      <td><input id="company" type="text" /></td>
-    </tr>
-    <tr>
-      <td class="label">Position</td>
-      <td><input id="position" type="text" /></td>
-    </tr>
-    <tr>
-      <td class="label">Location</td>
-      <td><input id="location" type="text" /></td>
-    </tr>
-    <tr>
-      <td class="label">URL</td>
-      <td><input id="url" type="text" readonly /></td>
-    </tr>
-    <tr>
-      <td class="label">REQ ID</td>
-      <td><input id="requisition_id" type="text" /></td>
-    </tr>
-    <tr>
-      <td class="label">Date Applied</td>
-      <td><input id="date_applied" type="text" /></td>
-    </tr>
-    <tr>
-      <td class="label">Date Posted</td>
-      <td><input id="date_posted" type="text" /></td>
-    </tr>
-    <tr>
-      <td class="label">Status</td>
-      <td>
-        <select id="status">
-          <option value="TO APPLY">TO APPLY</option>
-          <option value="APPLIED" selected>APPLIED</option>
-        </select>
-      </td>
-    </tr>
-  </table>
+  <button id="parseBtn" class="btn">Parse Posting</button>
 
-  <button id="saveBtn" disabled>Save</button>
+  <div class="form-container">
+    <div class="field-group">
+      <label for="company">Company</label>
+      <input id="company" type="text" placeholder="Company name" />
+    </div>
 
-  <div id="output" style="white-space: pre-wrap; font-size: 12px; color: red;"></div>
+    <div class="field-group">
+      <label for="position">Position</label>
+      <input id="position" type="text" placeholder="Job title" />
+    </div>
+
+    <div class="grid grid-2">
+      <div class="field-group">
+        <label for="location">Location</label>
+        <input id="location" type="text" placeholder="e.g. Remote" />
+      </div>
+      <div class="field-group">
+        <label for="requisition_id">Req ID</label>
+        <input id="requisition_id" type="text" placeholder="JR12345" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="url">Job URL</label>
+      <input id="url" type="text" readonly placeholder="Parsed URL" />
+    </div>
+
+    <div class="grid grid-2">
+      <div class="field-group">
+        <label for="date_posted">Date Posted</label>
+        <input id="date_posted" type="text" placeholder="MM/DD/YYYY" />
+      </div>
+      <div class="field-group">
+        <label for="date_applied">Date Applied</label>
+        <input id="date_applied" type="text" placeholder="MM/DD/YYYY" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="status">Status</label>
+      <select id="status">
+        <option value="TO APPLY">TO APPLY</option>
+        <option value="APPLIED" selected>APPLIED</option>
+      </select>
+    </div>
+  </div>
+
+  <button id="saveBtn" class="btn" disabled>Save to Sheet</button>
+
+  <div id="output"></div>
 
   <script src="popup.js"></script>
 </body>
