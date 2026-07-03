@@ -9,6 +9,31 @@ const dateAppliedInput = document.getElementById('date_applied');
 
 saveBtn.disabled = true;
 
+function showBanner(message, type) {
+  const iconSvg = type === 'success' 
+    ? `<svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`
+    : `<svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+
+  output.innerHTML = `
+    <div class="alert-body">
+      ${iconSvg}
+      <span class="alert-message">${message}</span>
+    </div>
+    <button class="alert-close" id="closeAlertBtn" aria-label="Close">&times;</button>
+  `;
+  output.className = type;
+  
+  document.getElementById('closeAlertBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hideBanner();
+  });
+}
+
+function hideBanner() {
+  output.className = '';
+  output.innerHTML = '';
+}
+
 function formatTodayDate() {
   return new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/New_York',
@@ -59,8 +84,7 @@ function populateForm(data) {
 }
 
 parseBtn.addEventListener('click', () => {
-  output.textContent = '';
-  output.className = '';
+  hideBanner();
   saveBtn.disabled = true;
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -74,24 +98,21 @@ parseBtn.addEventListener('click', () => {
       (results) => {
         if (chrome.runtime.lastError || !results || !results[0].result) {
           extractedContent = null;
-          output.textContent = "Failed to extract job details from this page.";
-          output.className = 'error';
+          showBanner("Failed to extract job details from this page.", "error");
           return;
         }
         extractedContent = results[0].result;
 
         chrome.runtime.sendMessage({ action: "processJobPost", content: extractedContent }, (response) => {
           if (response.error) {
-            output.textContent = "Error: " + response.error;
-            output.className = 'error';
+            showBanner("Error: " + response.error, "error");
             return;
           }
           try {
             const json = JSON.parse(response.result);
             populateForm(json);
           } catch {
-            output.textContent = "Failed to parse response from server.";
-            output.className = 'error';
+            showBanner("Failed to parse response from server.", "error");
           }
         });
       }
@@ -100,8 +121,7 @@ parseBtn.addEventListener('click', () => {
 });
 
 saveBtn.addEventListener('click', () => {
-  output.textContent = '';
-  output.className = '';
+  hideBanner();
 
   const dataToSave = {
     company: getInputValue('company'),
@@ -121,12 +141,10 @@ saveBtn.addEventListener('click', () => {
   })
     .then(res => res.json())
     .then(json => {
-      output.textContent = 'Saved successfully!';
-      output.className = 'success';
+      showBanner("Saved successfully!", "success");
     })
     .catch(err => {
-      output.textContent = 'Error saving data: ' + err.message;
-      output.className = 'error';
+      showBanner("Error saving data: " + err.message, "error");
     });
 });
 
